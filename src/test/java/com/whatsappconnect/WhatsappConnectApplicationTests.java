@@ -1,4 +1,4 @@
-package com.example.whatsappconnect;
+package com.whatsappconnect;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;

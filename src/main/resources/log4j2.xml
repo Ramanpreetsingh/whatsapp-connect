@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <properties>
+        <property name="LOG_PATH">/var/log</property>
+        <property name="METRIC_LOG_LEVEL">info</property>
+        <property name="LOG_LEVEL">info</property>
+        <property name="LOG_SUBPATH">whatsapp-connect</property>
+        <property name="APPLICATION">whatsapp-connect</property>
+        <property name="pattern">%d{yyyy-MM-dd HH:mm:ss.SSS} | %X{oyo-request-id} | %-5.5p | %-10.10t | %c:%msg%n</property>
+    </properties>
+    <appenders>
+        <Console name="Console" target="SYSTEM_OUT">
+            <PatternLayout pattern="${pattern}" />
+        </Console>
+        <RollingFile name="RollingFile"
+                     fileName="${LOG_PATH}/${APPLICATION}.log"
+                     filePattern="${LOG_PATH}/${LOG_SUBPATH}/${APPLICATION}-%d{yyyy-MM-dd}-%i.log.gz">
+            <PatternLayout>
+                <pattern>${pattern}</pattern>
+            </PatternLayout>
+            <Policies>
+                <TimeBasedTriggeringPolicy /><!-- Rotated everyday -->
+                <SizeBasedTriggeringPolicy size="100 MB" /> <!-- Or every 100 MB -->
+            </Policies>
+        </RollingFile>
+    </appenders>
+    <loggers>
+        <root level="${LOG_LEVEL}">
+            <appender-ref ref="RollingFile" /> <!-- And to a rotated file -->
+        </root>
+        <logger name="LogMethodInterceptor" level="${METRIC_LOG_LEVEL}">
+            <appender-ref ref="RollingFile" /> <!-- And to a rotated file -->
+        </logger>
+    </loggers>
+</configuration>
