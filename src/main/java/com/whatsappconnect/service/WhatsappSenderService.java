@@ -2,7 +2,8 @@ package com.whatsappconnect.service;
 
 import com.whatsappconnect.model.CreateGroupRequest;
 import com.whatsappconnect.model.SendMessageRequest;
-import com.whatsappconnect.model.TypeEnum;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -12,6 +13,7 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
 import java.io.File;
+import java.util.Random;
 
 
 /*
@@ -21,6 +23,8 @@ import java.io.File;
 
 @Service
 public class WhatsappSenderService {
+
+    private static Logger LOGGER = LoggerFactory.getLogger(WhatsappSenderService.class);
 
     public String createGroup(CreateGroupRequest createGroupRequest) {
 
@@ -35,41 +39,65 @@ public class WhatsappSenderService {
 
     public String sendMessage(SendMessageRequest sendMessageRequest){
 
+        //TODO: configure url
         String urlString = "http://54.254.232.208:8080/whatsapp/internal/send";
         LinkedMultiValueMap<String, Object> request = new LinkedMultiValueMap<>();
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.MULTIPART_FORM_DATA);
 
-        if(sendMessageRequest.getType().getType().equals(TypeEnum.FILE.getType())){
+        request.add("to",sendMessageRequest.getTo());
+        request.add("client",sendMessageRequest.getClient());
+        request.add("eId", getSaltString());
 
-            File file = new File("/Users/raman/Repos/whatsapp-connect/src/main/resources/" + sendMessageRequest.getTypeValue());
-            FileSystemResource value = new FileSystemResource(file);
+        //TODO: configure file path
 
-            request.add("file",value);
-            request.add("to",sendMessageRequest.getTo());
-            request.add("client",sendMessageRequest.getClient());
-            request.add("eId","dsdfsesf");
-            request.add("type","Document");
+        switch(sendMessageRequest.getType()){
+            case FILE:
+                File file = new File("/Users/raman/Repos/whatsapp-connect/src/main/resources/" + sendMessageRequest.getTypeValue());
+                FileSystemResource value = new FileSystemResource(file);
 
-            HttpEntity<LinkedMultiValueMap<String, Object>> requestEntity =
-                    new HttpEntity<>(request, headers);
-            RestTemplate restTemplate = new RestTemplate();
+                request.add("file",value);
+                request.add("type","Document");
 
-            String result = null;
-            try{
-                result = restTemplate.postForObject(urlString, requestEntity, String.class);
-            }catch (Exception e){
-                result = "false";
-            }
+            case TEXT:
+                request.add("text",sendMessageRequest.getTypeValue());
+                request.add("type","Text");
 
-            return result;
+            case CAPTION:
+                File imageFile = new File("/Users/raman/Repos/whatsapp-connect/src/main/resources/" + sendMessageRequest.getTypeValue());
+                FileSystemResource imageValue = new FileSystemResource(imageFile);
 
+                request.add("file",imageValue);
+                request.add("type","Image");
 
         }
 
+        HttpEntity<LinkedMultiValueMap<String, Object>> requestEntity = new HttpEntity<>(request, headers);
+        RestTemplate restTemplate = new RestTemplate();
+
+        String result = null;
+        try{
+            result = restTemplate.postForObject(urlString, requestEntity, String.class);
+        }catch (Exception e){
+            LOGGER.error("Exception while sending message to {}",sendMessageRequest.getTo());
+            result = "Exception while sending message to" + sendMessageRequest.getTo();
+        }
+
+        return result;
+    }
 
 
-        return null;
+    public String getSaltString() {
+        String SALTCHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890";
+        StringBuilder salt = new StringBuilder();
+        Random rnd = new Random();
+        while (salt.length() < 10) { // length of the random string.
+            int index = (int) (rnd.nextFloat() * SALTCHARS.length());
+            salt.append(SALTCHARS.charAt(index));
+        }
+        String saltStr = salt.toString();
+        return saltStr;
+
     }
 
 

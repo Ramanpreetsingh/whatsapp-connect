@@ -45,13 +45,16 @@ public class WhatsappSenderController {
     @RequestMapping(value = "/sendMessage", method = RequestMethod.POST)
     public ServiceResponse<String> sendMessage(@RequestBody String requestBody) throws IOException {
 
+        Process process = Runtime.getRuntime().exec("python /Users/raman/Repos/whatsapp-connect/src/main/resources/spreadsheet.py");
+
         ObjectMapper mapper = new ObjectMapper();
         SendMessageRequest sendMessageRequest = mapper.readValue(requestBody, SendMessageRequest.class);
 
         String result = whatsappSenderService.sendMessage(sendMessageRequest);
-
         return new ServiceResponse<String>(result, HttpStatus.OK);
     }
+
+
 
 
 
