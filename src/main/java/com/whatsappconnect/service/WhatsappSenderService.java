@@ -58,10 +58,12 @@ public class WhatsappSenderService {
 
                 request.add("file",value);
                 request.add("type","Document");
+                break;
 
             case TEXT:
                 request.add("text",sendMessageRequest.getTypeValue());
                 request.add("type","Text");
+                break;
 
             case CAPTION:
                 File imageFile = new File("/Users/raman/Repos/whatsapp-connect/src/main/resources/" + sendMessageRequest.getTypeValue());
@@ -69,6 +71,7 @@ public class WhatsappSenderService {
 
                 request.add("file",imageValue);
                 request.add("type","Image");
+                break;
 
         }
 
