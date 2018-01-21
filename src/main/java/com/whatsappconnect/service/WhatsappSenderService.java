@@ -47,7 +47,10 @@ public class WhatsappSenderService {
 
         request.add("to",sendMessageRequest.getTo());
         request.add("client",sendMessageRequest.getClient());
-        request.add("eId", getSaltString());
+
+        String eId = getSaltString();
+        request.add("eId",eId );
+        LOGGER.info("Unique EID generated is {}",eId);
 
         //TODO: configure file path
 

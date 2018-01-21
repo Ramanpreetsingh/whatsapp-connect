@@ -31,11 +31,15 @@ public class WhatsappSenderController {
 
     private static Logger LOGGER = LoggerFactory.getLogger(WhatsappSenderController.class);
 
+    //TODO: add exception handling beahviour
+
     @RequestMapping(value = "/createGroup", method = RequestMethod.POST)
     public ServiceResponse<String> createGroup(@RequestBody String requestBody) throws IOException {
 
         ObjectMapper mapper = new ObjectMapper();
         CreateGroupRequest createGroupRequest = mapper.readValue(requestBody, CreateGroupRequest.class);
+
+        LOGGER.info("CreateGroupRequest received is {}",createGroupRequest);
 
         String result = whatsappSenderService.createGroup(createGroupRequest);
         return new ServiceResponse<String>(result, HttpStatus.OK);
@@ -45,10 +49,10 @@ public class WhatsappSenderController {
     @RequestMapping(value = "/sendMessage", method = RequestMethod.POST)
     public ServiceResponse<String> sendMessage(@RequestBody String requestBody) throws IOException {
 
-     //   Process process = Runtime.getRuntime().exec("python /Users/raman/Repos/whatsapp-connect/src/main/resources/spreadsheet.py");
-
         ObjectMapper mapper = new ObjectMapper();
         SendMessageRequest sendMessageRequest = mapper.readValue(requestBody, SendMessageRequest.class);
+
+        LOGGER.info("SendMessageRequest received is {}",sendMessageRequest);
 
         String result = whatsappSenderService.sendMessage(sendMessageRequest);
         return new ServiceResponse<String>(result, HttpStatus.OK);
